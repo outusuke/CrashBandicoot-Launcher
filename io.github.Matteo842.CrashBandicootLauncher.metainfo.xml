@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.Matteo842.CrashBandicootLauncher</id>
+  <name>Crash Bandicoot Launcher</name>
+  <summary>Unofficial launcher for a native Crash Bandicoot port</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>Unofficial fan project. Requires your own legally obtained disc dump of Crash Bandicoot (NTSC-U, SCUS-94900). The game itself is not included.</p>
+  </description>
+  <url type="homepage">https://github.com/Matteo842/CrashBandicoot-Launcher</url>
+  <launchable type="desktop-id">io.github.Matteo842.CrashBandicootLauncher.desktop</launchable>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="2.3.1" date="2026-10-21"/>
+  </releases>
+</component>

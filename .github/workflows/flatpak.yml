@@ -1,0 +1,47 @@
+name: Flatpak bundle
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix-cd-tick-spin]
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: >
+          dotnet publish CrashBandicoot.Launcher -c Release -f net10.0 -r linux-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:IncludeAllContentForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o publish-linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CrashBandicoot-linux-x64
+          path: publish-linux/CrashBandicoot
+          if-no-files-found: error
+
+  flatpak:
+    needs: publish
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: CrashBandicoot-linux-x64
+      - run: sed -i "s/- VER=dev/- VER=$(echo "$GITHUB_SHA" | cut -c1-7)/" io.github.Matteo842.CrashBandicootLauncher.yml
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: CrashBandicootLauncher.flatpak
+          manifest-path: io.github.Matteo842.CrashBandicootLauncher.yml
+          arch: x86_64
+          cache-key: flatpak-builder-${{ github.sha }}

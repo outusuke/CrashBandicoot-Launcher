@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Crash Bandicoot Launcher
+Comment=Unofficial native port launcher (requires your own SCUS-94900 disc dump)
+Exec=crashbandicoot.sh
+Icon=io.github.Matteo842.CrashBandicootLauncher
+Categories=Game;
+Terminal=false

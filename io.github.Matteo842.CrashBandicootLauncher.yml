@@ -1,0 +1,53 @@
+app-id: io.github.Matteo842.CrashBandicootLauncher
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: crashbandicoot.sh
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=all
+  - --filesystem=xdg-download:ro
+  - --filesystem=xdg-documents:ro
+  - --filesystem=/run/media
+  # no ICU in the runtime
+  - --env=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+modules:
+  - name: crashbandicoot
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 CrashBandicoot /app/crashbandicoot/CrashBandicoot
+      - install -Dm755 crashbandicoot.sh /app/bin/crashbandicoot.sh
+      - install -Dm644 io.github.Matteo842.CrashBandicootLauncher.desktop /app/share/applications/io.github.Matteo842.CrashBandicootLauncher.desktop
+      - install -Dm644 io.github.Matteo842.CrashBandicootLauncher.metainfo.xml /app/share/metainfo/io.github.Matteo842.CrashBandicootLauncher.metainfo.xml
+      - install -Dm644 icon.png /app/share/icons/hicolor/256x256/apps/io.github.Matteo842.CrashBandicootLauncher.png
+    sources:
+      - type: file
+        path: CrashBandicoot
+      - type: script
+        dest-filename: crashbandicoot.sh
+        commands:
+          - VER=dev
+          # launcher saves next to its exe, /app is read-only
+          - export CB_HOME="${XDG_DATA_HOME}/crashbandicoot"
+          - mkdir -p "$CB_HOME"
+          - |
+            if [ ! -x "$CB_HOME/CrashBandicoot" ] || [ "$(cat "$CB_HOME/.version" 2>/dev/null)" != "$VER" ]; then
+              cp -f /app/crashbandicoot/CrashBandicoot "$CB_HOME/CrashBandicoot.tmp"
+              chmod +x "$CB_HOME/CrashBandicoot.tmp"
+              mv -f "$CB_HOME/CrashBandicoot.tmp" "$CB_HOME/CrashBandicoot"
+              printf '%s' "$VER" > "$CB_HOME/.version"
+            fi
+          - cd "$CB_HOME"
+          - exec ./CrashBandicoot "$@"
+      - type: file
+        path: io.github.Matteo842.CrashBandicootLauncher.desktop
+      - type: file
+        path: io.github.Matteo842.CrashBandicootLauncher.metainfo.xml
+      - type: file
+        path: icon.png
